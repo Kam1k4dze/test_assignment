@@ -1,0 +1,11 @@
+database:
+  DB_USER: postgres
+  DB_PASSWORD: postgres
+  DB_HOST: localhost
+  DB_NAME: db
+  DB_PORT: 5432
+models:
+  NAME_MAX_LENGTH: 50
+cache:
+  REDIS_URL: redis://localhost:6379/0
+  CACHE_TTL: 60
