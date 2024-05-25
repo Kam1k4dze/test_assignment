@@ -111,21 +111,16 @@ async def list_orders() -> Result:
 
 @method(name="Order.get")
 async def get_order(id: int) -> Result:
-    # Check cache first
     cached_order = await cache.get(f"order:{id}")
     if cached_order:
         print("Cache hit")
         return Success(loads(cached_order))
-
-    # If not in cache, fetch from database
     async with engine.begin() as conn:
         result = await conn.execute(select(orders_table).where(orders_table.c.id == id))
         order_data = result.fetchone()
         if order_data is None:
             return Success(dict())
         order_data_dict = order_data._asdict()
-
-        # Add the fetched order to the cache
         await cache.set(f"order:{id}", dumps(order_data_dict), ex=CACHE_TTL)
         return Success(order_data_dict)
 
