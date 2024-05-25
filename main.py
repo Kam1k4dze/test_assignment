@@ -43,10 +43,10 @@ async def add_customer(name: str, options: dict) -> Result:
 
 @method(name="Customer.list")
 async def list_customers() -> Result:
-    cashed_customes = await cache.get("customers")
-    if cashed_customes:
+    cashed_customers = await cache.get("customers")
+    if cashed_customers:
         print("Cache hit")
-        return Success(loads(cashed_customes))
+        return Success(loads(cashed_customers))
     async with engine.begin() as conn:
         try:
             result = await conn.execute(select(customer_table))

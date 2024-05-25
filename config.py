@@ -4,6 +4,7 @@ import yaml
 def load_config():
     try:
         with open("config.yaml", 'r') as stream:
+            global config
             config = yaml.safe_load(stream)
     except yaml.YAMLError as exc:
         print(exc)
