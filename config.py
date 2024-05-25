@@ -18,6 +18,8 @@ if config is None:
     raise ValueError("Failed to load configuration. Please check your config.yaml file.")
 
 try:
+    SERVER_HOST = config['server']['HOST']
+    SERVER_PORT = config['server']['PORT']
     DB_USER = config['database']['DB_USER']
     DB_PASSWORD = config['database']['DB_PASSWORD']
     DB_HOST = config['database']['DB_HOST']

@@ -9,7 +9,7 @@ from fastapi import FastAPI, Request, Response
 from jsonrpcserver import Result, async_dispatch, InvalidParams, Error, method, Success
 from sqlalchemy import select, delete
 
-from config import REDIS_URL, CACHE_TTL
+from config import REDIS_URL, CACHE_TTL, SERVER_HOST, SERVER_PORT
 from database import engine, recreate_tables
 from models import NAME_MAX_LENGTH
 from models import customer_table, orders_table
@@ -159,6 +159,6 @@ if __name__ == "__main__":
         asyncio.get_event_loop().run_until_complete(recreate_tables())
         print("Tables created")
     elif args.command == "run":
-        uvicorn.run(app, host="0.0.0.0", port=8000)
+        uvicorn.run(app, host=SERVER_HOST, port=SERVER_PORT)
     else:
         print(f'Unknown command: {args.command}. The available commands are "create" and "run".')
