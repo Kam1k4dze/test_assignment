@@ -10,7 +10,7 @@ from jsonrpcserver import Result, async_dispatch, InvalidParams, Error, method, 
 from sqlalchemy import select, delete
 
 from config import REDIS_URL, CACHE_TTL
-from database import engine, create_tables
+from database import engine, recreate_tables
 from models import NAME_MAX_LENGTH
 from models import customer_table, orders_table
 
@@ -44,6 +44,9 @@ async def add_customer(name: str, options: dict) -> Result:
 @method(name="Customer.list")
 async def list_customers() -> Result:
     cashed_customes = await cache.get("customers")
+    if cashed_customes:
+        print("Cache hit")
+        return Success(loads(cashed_customes))
     async with engine.begin() as conn:
         try:
             result = await conn.execute(select(customer_table))
@@ -150,10 +153,10 @@ async def rpc_endpoint(request: Request):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Manage your FastAPI application.")
-    parser.add_argument('command', type=str, help='The command to execute. "create" or "run".')
+    parser.add_argument('command', type=str, help='The command to execute. "recreate" or "run".')
     args = parser.parse_args()
-    if args.command == "create":
-        asyncio.get_event_loop().run_until_complete(create_tables())
+    if args.command == "recreate":
+        asyncio.get_event_loop().run_until_complete(recreate_tables())
         print("Tables created")
     elif args.command == "run":
         uvicorn.run(app, host="0.0.0.0", port=8000)
