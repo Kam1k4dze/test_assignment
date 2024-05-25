@@ -1,5 +1,6 @@
 import argparse
 import asyncio
+from contextlib import asynccontextmanager
 from json import dumps, loads
 
 import redis.asyncio as redis
@@ -10,11 +11,19 @@ from jsonrpcserver import Result, async_dispatch, InvalidParams, Error, method, 
 from sqlalchemy import select, delete
 
 from config import REDIS_URL, CACHE_TTL, SERVER_HOST, SERVER_PORT
-from database import engine, recreate_tables
+from database import engine, recreate_tables, check_db, create_tables
 from models import NAME_MAX_LENGTH
 from models import customer_table, orders_table
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app):
+    await check_db()
+    await create_tables()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 cache = redis.from_url(REDIS_URL, decode_responses=True)
 
 
@@ -152,7 +161,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.command == "recreate":
         asyncio.get_event_loop().run_until_complete(recreate_tables())
-        print("Tables created")
+        print("Tables recreated")
     elif args.command == "run":
         uvicorn.run(app, host=SERVER_HOST, port=SERVER_PORT)
     else:
